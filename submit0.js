@@ -34,15 +34,14 @@ page.onResourceReceived= function(resource) {
 
 var onready=function(){
    var ret = page.evaluate(function() {
-          var arr = document.getElementById("file_down");
-          var i = 0;
-	 
-          if (arr.length > 0){
+          var frm = document.getElementById("file_down");
+          
+          if (frm!=null){
 	   console.log("onready(), get form elem for file_download");
-           console.log(arr[i].id);
+           console.log(frm.id);
 
-           if(arr[i].getAttribute('method') == "POST") {		
-            arr[i].submit();
+           if(frm.getAttribute('method') == "POST") {		
+            //frm.submit();
             return document.querySelectorAll('form')[0].outerHTML;          
            }
          }
