@@ -11,12 +11,16 @@
  * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
 function waitFor(testFx, onReady, timeOutMillis) {
-   var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
-      start = new Date().getTime(),
-      condition = false,
+      console.log("enter waitFor() ");
+	var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 30000, //< Default Max Timout is 3s
+      start = new Date().getTime();
+      condition = false;
+	console.log("maxtimeOutMillis=" + maxtimeOutMillis);
+	
       interval = setInterval(function() {
          if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
             // If not time-out yet and condition not yet fulfilled
+		  console.log("enter testFix() ");
             condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
          } else {
             if (!condition) {

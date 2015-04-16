@@ -7,7 +7,21 @@ var page = require('webpage').create();
 page.settings.userAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)";
 
 //= 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36';
+//=================
+phantom.onError = function(msg, trace) {
+  var msgStack = ['PHANTOM ERROR: ' + msg];
+  if (trace && trace.length) {
+    msgStack.push('TRACE:');
+    trace.forEach(function(t) {
+      msgStack.push(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function +')' : ''));
+    });
+  }
+  console.error(msgStack.join('\n'));
+  phantom.exit(1);
+};
 
+
+//===================
 
 page.onConsoleMessage = function(msg) {
    console.log(msg);
@@ -43,9 +57,11 @@ page.open(url, function(status) {
       console.log('Unable to access network');
    } else {
 	console.log("page.evaluate() to click dnload link");
-        	
-        page.evaluate(function() {
-          var frm = document.getElementById("file_down");
+	console.log("isZipDnloaded=" + isZipDnloaded);
+        
+	page.evaluate(function() {
+		console.log("enter page.evaluate()");        
+		var frm = document.getElementById("file_down");
           
      	  if(frm==null) { console.log("not found! form file_down not found");return null;}
 
@@ -53,7 +69,8 @@ page.open(url, function(status) {
            console.log(frm.id);
 
            if(frm.getAttribute('method') == "POST") {		
-            frm.submit();
+            //frm.submit();
+		   console.log("form to be submitted");
             return ; //document.querySelectorAll('form')[0].outerHTML;            
            }         
        });
@@ -63,6 +80,7 @@ page.open(url, function(status) {
    //phantom.exit();
 });
 
+console.log('after page.open(), wait for data dnloading ...');
 setTimeout(function() {  var x=1;  }, 200);
 
 var waitfor=require('./waitfor.js');
@@ -73,7 +91,7 @@ var onready=function(){
 waitfor.waitfor(function(){
 	console.log("isZipDnloaded=" + isZipDnloaded);
 	return isZipDnloaded;}, 
-	onready, 3000);
+	onready, 15000);
 
 
 setTimeout(function() {  phantom.exit();  }, 200);
