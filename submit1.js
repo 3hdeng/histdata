@@ -1,10 +1,9 @@
 var url = "http://www.histdata.com/download-free-forex-historical-data/?/metatrader/1-minute-bar-quotes/eurusd/2014";
-//var url = phantom.args[0];
-
+var waitfor=require('./waitfor.js');
 
 var page = require('webpage').create();
 
-page.settings.userAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)";
+///page.settings.userAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)";
 
 //= 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36';
 //=================
@@ -42,10 +41,10 @@ var isZipDnloaded=false;
 
 page.onResourceReceived= function(resource) {
    //application/zip, application/octet-stream 
-   console.log(resource.contentType);
+   //console.log(resource.contentType);
    if (resource.contentType && resource.stage === 'end' && resource.contentType.indexOf('application/zip') > -1) {
       console.log(resource);
-	   isZipDnloaded=true;
+      isZipDnloaded=true;
    }
 };
 
@@ -56,6 +55,7 @@ page.open(url, function(status) {
    if (status !== 'success') {
       console.log('Unable to access network');
    } else {
+   
 	console.log("page.evaluate() to click dnload link");
 	console.log("isZipDnloaded=" + isZipDnloaded);
         
@@ -63,16 +63,16 @@ page.open(url, function(status) {
 		console.log("enter page.evaluate()");        
 		var frm = document.getElementById("file_down");
           
-     	  if(frm==null) { console.log("not found! form file_down not found");return null;}
+		if(frm==null) { console.log("not found! form file_down not found");return null;}
 
-	   console.log("get form elem with Id file_down");
-           console.log(frm.id);
+		console.log("get form elem with Id file_down");
+		console.log(frm.id);
 
-           if(frm.getAttribute('method') == "POST") {		
-            //frm.submit();
+		if(frm.getAttribute('method') == "POST") {		
+		   //frm.submit();
 		   console.log("form to be submitted");
-            return ; //document.querySelectorAll('form')[0].outerHTML;            
-           }         
+		   return ; //document.querySelectorAll('form')[0].outerHTML;            
+              }         
        });
       //console.log(ret);
    }
@@ -83,15 +83,16 @@ page.open(url, function(status) {
 console.log('after page.open(), wait for data dnloading ...');
 setTimeout(function() {  var x=1;  }, 200);
 
-var waitfor=require('./waitfor.js');
 var onready=function(){
-	console.log("isZipDnloaded=" + isZipDnloaded);
-	
+	console.log("isZipDnloaded=" + isZipDnloaded);	
+	console.log("phantom.exit() has to be placed in the end of event chain");
+	setTimeout(function() {  phantom.exit();  }, 200);
 	}
 waitfor.waitfor(function(){
 	console.log("isZipDnloaded=" + isZipDnloaded);
+	//console.log("var scope problem");
 	return isZipDnloaded;}, 
 	onready, 15000);
 
 
-setTimeout(function() {  phantom.exit();  }, 200);
+//setTimeout(function() {  phantom.exit();  }, 200);
