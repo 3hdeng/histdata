@@ -10,7 +10,20 @@ function getbasename(path) {
    return base;
 }
 
+function objToString (obj) {
+    var str = '';
+    for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            str += p + '=' + obj[p] + '&';
+        }
+    }
+    if(str.length>0) //rm the last &
+	str=str.substr(0, str.length-1);
+    return str;
+}
+
 module.exports = {
     filename: getfilename,
-    basename: getbasename	
+    basename: getbasename,
+    objToString:objToString
 };
