@@ -40,36 +40,55 @@ var isZipDnloaded = false;
 page.onResourceReceived = function(resource) {
    //application/zip, application/octet-stream 
    //console.log(resource.contentType);
-   Console.log(resource.header);
-   if (resource.contentType && resource.stage === 'end' && resource.contentType.indexOf('application/zip') > -1) {
+  /* console.log(resource.headers);
+   if (resource.contentType && resource.stage === 'end' &&
+	(resource.contentType.indexOf('application/zip') > -1 ||
+	resource.contentType.indexOf('application/octet-stream') > -1)
+	){
       console.log(resource);
       isZipDnloaded = true;
-   }
+   }*/
 };
+
+var fs = require('fs');
+
+var destfname = '/C/Users/eltonden/Downloads/HISTDATA/ex1.zip';
+
+//fs.write(path, content, 'awb');
 
 
 function postForm(data) {
-	console.log("postForm with "+ data);
+  console.log("postForm with "+ data);
    var server = 'http://www.histdata.com/get.php';
    //data = 'universe=expanding&answer=42';
    var page2 = require('webpage').create();
-   page2.onResourceReceived = function(resource) {
+   page2.onResourceReceived = function(response) {
       //application/zip, application/octet-stream   
-      Console.log("page2 " + resource.header);
-      if (resource.contentType && resource.stage === 'end' && resource.contentType.indexOf('application/zip') > -1) {
-         console.log(resource);
-         isZipDnloaded = true;
-      }
+      console.log("page2 " +JSON.stringify(response.headers));
+	if  ( response.contentType.indexOf('application/zip') > -1 || response.contentType.indexOf('application/octet-stream')  )
+	   {		   
+		console.log("chunked data dnloading ...");
+		//xxx console.log(response.headers["Content-Disposition"]);
+		//	console.log(response.body);
+		//   fs.write(destfname, response.body, 'awb');
+		console.log(JSON.stringify(response));   
+	   }
+      if (response.contentType && response.stage === 'end' && 
+	   ( response.contentType.indexOf('application/zip') > -1 || response.contentType.indexOf('application/octet-stream') )
+	   )
+	   {
+             console.log("page2, zip dnload finished");
+		   
+             isZipDnloaded = true;
+          }
    };
 
-   page.onFileDownload = function(url) {
+ page2.onFileDownload = function(url) {
    console.log("onFileDownload2: " + url);
    return mytutil.basename(url);
 }
 
-   page2.onFileDownloadError = function(errorMessage) {
-   console.log(errorMessage)
-}
+ 
 
 page2.onLoadFinished = function(status) {
    console.log('Load2 Finished: ' + status);
@@ -81,6 +100,12 @@ page2.onLoadStarted = function() {
    loadInProgress = true;
    console.log("load2 started");
 };
+
+
+page2.onResourceRequested = function(status){console.log('page2, onResourceRequested(' + status + ')'); }
+
+page2.onFileDownloadError = function(status){console.log('page2, onFileDownloadError(' + status + ')');phantom.exit(1);}
+
 
    page2.open(server, 'post', data, function(status) {
       if (status !== 'success') {
